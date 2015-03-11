@@ -2,12 +2,14 @@ Autoform File
 =============
 
 ### Description ###
-Upload and manage files with autoForm.
+Upload and manage files with autoForm for materialize
+
+**Forked from [yogiben:autoform-file](https://github.com/yogiben/meteor-autoform-file)**
 
 ![Meteor autoform file](https://raw.githubusercontent.com/yogiben/meteor-autoform-file/master/readme/1.png)
 
 ### Quick Start ###
-1) Install `meteor add yogiben:autoform-file`
+1) Install `meteor add gildaspk:autoform-file-materialize`
 
 2) Create your collectionFS (See [collectionFS](https://github.com/CollectionFS/Meteor-CollectionFS))
 ```
@@ -46,7 +48,7 @@ Schemas.Posts = new SimpleSchema
 	title:
 		type:String
 		max: 60
-		
+
 	picture:
 		type: String
 		autoform:
@@ -73,7 +75,10 @@ or
 {{#autoForm collection="Posts" type="insert"}}
 {{> afQuickField name="title"}}
 {{> afQuickField name="picture"}}
-<button type="submit" class="btn btn-primary">Insert</button>
+<button type="submit" class="waves-effect waves-light btn">
+  <i class="mdi-content-send.right"></i>
+  Insert
+</button>
 {{/autoForm}}
 ```
 ###Security & optimization###
