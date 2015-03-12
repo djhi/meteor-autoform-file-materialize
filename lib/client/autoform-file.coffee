@@ -75,10 +75,17 @@ Template.afFileUpload.events
 				Session.set 'fileUploadSelected[' + name + ']', files[0].name
 				# console.log fileObj
 				refreshFileInput name
+		return
+
+	'click .file-path': (e, t)->
+		t.$('.file-upload').click()
+		return
+
 	'click .file-upload-clear': (e, t)->
 		name = $(e.currentTarget).attr('file-input')
 		$('input[name="' + name + '"]').val('')
 		Session.set 'fileUpload[' + name + ']', 'delete-file'
+		return
 
 Template.afFileUpload.helpers
 	collection: ->
@@ -113,9 +120,10 @@ Template.afFileUpload.helpers
 
 		if file != '' && file
 			if file.length == 17
-				if collection.findOne({_id:file})
-					filename = collection.findOne({_id:file}).name()
-					src = collection.findOne({_id:file}).url()
+				cfsFile = collection.findOne({_id:file})
+				if cfsFile
+					filename = cfsFile.name()
+					src = cfsFile.url()
 				else
 					# No subscription
 					filename = Session.get 'fileUploadSelected[' + name + ']'

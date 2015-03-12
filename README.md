@@ -89,5 +89,5 @@ You can customize the button / remove text.
 
 Defaults:
 ```
-{{> afFieldInput name="picture" label="Choose file" remove-label="Remove"}}
+{{> afFieldInput name="picture" label=">" remove-label="Remove" placeholder="Please select a file"}}
 ```
