@@ -2,7 +2,7 @@ Package.describe({
   name: "gildaspk:autoform-file-materialize",
   summary: "File upload for AutoForm with Materialize",
   description: "File upload for AutoForm with Materialize",
-  version: "0.0.2",
+  version: "0.0.3",
   git: "http://github.com/djhi/meteor-autoform-file-materialize.git"
 });
 
