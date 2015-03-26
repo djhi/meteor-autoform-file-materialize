@@ -1,4 +1,19 @@
 <template name="afFileUpload">
+		{{#unless isUploaded}}
+		<div class="col s12 center-align">
+			<div class="preloader-wrapper big active">
+		    <div class="spinner-layer spinner-blue-only">
+		      <div class="circle-clipper left">
+		        <div class="circle"></div>
+		      </div><div class="gap-patch">
+		        <div class="circle"></div>
+		      </div><div class="circle-clipper right">
+		        <div class="circle"></div>
+		      </div>
+		    </div>
+		  </div>
+	  </div>
+		{{/unless}}
 		{{#if fileUpload}}
 		{{#with fileUpload}}
 			{{> Template.dynamic template=template data=data}}

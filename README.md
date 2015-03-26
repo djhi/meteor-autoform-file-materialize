@@ -84,10 +84,30 @@ or
 ###Security & optimization###
 The above example is just a starting point. You should set your own custom `allow` rules and optimize your subscriptions.
 
+The `remove` button delete the file from your CFS collection. Take care to update your document accordingly or you'll get invalid references.
+
 ### Customization ###
 You can customize the button / remove text.
 
 Defaults:
 ```
 {{> afFieldInput name="picture" label=">" remove-label="Remove" placeholder="Please select a file"}}
+```
+
+You can add metadata to your file:
+
+Template
+```
+{{> afFieldInput name="picture" metadata=metadataHelper}}
+```
+
+Helper
+```
+Templates.myTemplate.helpers({
+  metadataHelper: function(){
+    return {
+      userId: Meteor.userId()
+    }
+  }
+});
 ```

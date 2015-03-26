@@ -2,7 +2,7 @@ Package.describe({
   name: "gildaspk:autoform-file-materialize",
   summary: "File upload for AutoForm with Materialize",
   description: "File upload for AutoForm with Materialize",
-  version: "0.0.3",
+  version: "0.0.4",
   git: "http://github.com/djhi/meteor-autoform-file-materialize.git"
 });
 
@@ -12,6 +12,7 @@ Package.onUse(function(api) {
   api.use(
     [
     'coffeescript',
+    'reactive-var',
     'underscore',
     'templating',
     'less',
@@ -19,7 +20,7 @@ Package.onUse(function(api) {
     ],
     'client');
 
-  api.add_files('lib/client/autoform-file.html', 'client');
-  api.add_files('lib/client/autoform-file.less', 'client');
-  api.add_files('lib/client/autoform-file.coffee', 'client');
+  api.addFiles('lib/client/autoform-file.html', 'client');
+  api.addFiles('lib/client/autoform-file.less', 'client');
+  api.addFiles('lib/client/autoform-file.coffee', 'client');
 });

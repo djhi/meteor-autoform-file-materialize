@@ -1,16 +1,4 @@
-AutoForm.addInputType 'fileUpload', {
-	template: 'afFileUpload'
-}
-
-refreshFileInput = (name)->
-	callback = ->
-		# id = $('.nav-pills[file-input="'+name+'"] > .active > a').attr('href')
-		# value = $('.tab-content[file-input="'+name+'"] >' + id + '>div>input').val()
-		# $('input[name="' + name + '"]').val(value)
-		# console.log name
-		value = $('input[name="' + name + '"]').val()
-		Session.set 'fileUpload['+name+']', value
-	setTimeout callback, 10
+AutoForm.addInputType 'fileUpload', template: 'afFileUpload'
 
 getIcon = (file)->
 	if file
@@ -41,50 +29,72 @@ getTemplate = (file)->
 		template = 'fileThumbImg'
 	template
 
-clearFilesFromSession = ->
-	_.each Session.keys, (value, key, index)->
-		if key.indexOf('fileUpload') > -1
-			Session.set key, ''
-
 getCollection = (context) ->
 	if typeof context.atts.collection == 'string'
 		context.atts.collection = FS._collections[context.atts.collection] or window[context.atts.collection]
 	return context.atts.collection
 
-AutoForm.addHooks null,
-	onSuccess: ->
-		clearFilesFromSession()
+Template.afFileUpload.created = ->
+	@file = new ReactiveVar undefined
+	@fileUpload = new ReactiveVar undefined
+	@fileUploaded = new ReactiveVar undefined
+	return
 
-Template.afFileUpload.destroyed = () ->
+Template.afFileUpload.rendered = ->
+	@file.set undefined
+	@fileUpload.set undefined
+	@fileUploaded.set true
+	return
+
+Template.afFileUpload.destroyed = ->
 	name = @data.name
-	Session.set 'fileUpload['+name+']', null
+	@file.set undefined
+	@fileUpload.set undefined
+	@fileUploaded.set undefined
+	return
 
 Template.afFileUpload.events
-	"change .file-upload": (e, t) ->
-		files = e.target.files
+	"change .file-upload": (event, template) ->
+		files = event.target.files
+		file = new FS.File files[0]
+		file.metadata = file.metadata or {}
+		collection = getCollection(template.data)
 
-		collection = getCollection(t.data)
-		collection.insert files[0], (err, fileObj) ->
+		if @atts.metadata
+			_.extend file.metadata, @atts.metadata
+
+		collection.insert file, (err, image) =>
 			if err
 				console.log err
 			else
-				name = $(e.target).attr('file-input')
-				# console.log $(e.target)
-				# console.log fileObj
-				$('input[name="' + name + '"]').val(fileObj._id)
-				Session.set 'fileUploadSelected[' + name + ']', files[0].name
-				# console.log fileObj
-				refreshFileInput name
+				name = $(event.target).attr('file-input')
+				$('input[name="' + name + '"]').val image._id
+				template.file.set image
+				template.fileUpload.set files[0].name
+				template.fileUploaded.set false
+
+				collection = getCollection(@)
+				cursor = collection.find image._id
+
+				liveQuery = cursor.observe
+				  changed: (newImage) ->
+				    if newImage.isUploaded()
+				      template.fileUploaded.set true
+				      liveQuery.stop()
+				      return
 		return
 
-	'click .file-path': (e, t)->
-		t.$('.file-upload').click()
+	'click .file-path': (event, template)->
+		template.$('.file-upload').click()
 		return
 
-	'click .file-upload-clear': (e, t)->
-		name = $(e.currentTarget).attr('file-input')
+	'click .file-upload-clear': (event, template)->
+		name = $(event.currentTarget).attr('file-input')
 		$('input[name="' + name + '"]').val('')
-		Session.set 'fileUpload[' + name + ']', 'delete-file'
+		template.fileUploaded.set true
+		template.fileUpload.set undefined
+		template.file.set undefined
+		@value = undefined
 		return
 
 Template.afFileUpload.helpers
@@ -100,69 +110,57 @@ Template.afFileUpload.helpers
 		atts = _.clone(this.atts)
 		delete atts.collection
 		delete atts.buttonlabel
+		delete atts.metadata
 		atts
 	fileUpload: ->
-		af = Template.parentData(1)._af
-		# Template.parentData(4).value
+		template = Template.instance()
 
 		name = @atts.name
 		collection = getCollection(@)
 
-		if af &&  af.submitType == 'insert'
-			doc = af.doc
-
-		parentData = Template.parentData(0).value or Template.parentData(4).value
-		if Session.equals('fileUpload['+name+']', 'delete-file')
-			return null
-		else if Session.get('fileUpload['+name+']')
-			file = Session.get('fileUpload['+name+']')
-		else if parentData
-			file = parentData
+		if template.file.get()
+			file = template.file.get()._id
+		else if @value
+			file = @value
 		else
 			return null
 
 		if file != '' && file
 			if file.length == 17
-				cfsFile = collection.findOne({_id:file})
+				cfsFile = collection.findOne _id:file
 				if cfsFile
+					unless template.file.get()
+						template.file.set cfsFile
+						template.fileUploaded.set true
+
 					filename = cfsFile.name()
 					src = cfsFile.url()
 				else
 					# No subscription
-					filename = Session.get 'fileUploadSelected[' + name + ']'
-					obj =
-						template: 'fileThumbIcon'
-						data:
-							src: filename
-							icon: getIcon filename
-					return obj
+					filename = template.fileUpload.get()
+					if filename
+						obj =
+							template: 'fileThumbIcon'
+							data:
+								src: filename
+								icon: getIcon filename
+						return obj
 			else
 				filename = file
 				src = filename
+
 		if filename
 			obj =
-				template: getTemplate(filename)
+				template: getTemplate filename
 				data:
 					src: src
-					icon: getIcon(filename)
+					icon: getIcon filename
 			obj
-	fileUploadSelected: (name)->
-		Session.get 'fileUploadSelected['+name+']'
-	isUploaded: (name,collection) ->
-		file = Session.get 'fileUpload['+name+']'
-		isUploaded = false
-		if file && file.length == 17
-			doc = window[collection].findOne({_id:file})
-			isUploaded = doc.isUploaded()
-		else
-			isUploaded = true
-		isUploaded
 
-	getFileByName: (name,collection)->
-		file = Session.get 'fileUpload['+name+']'
-		if file && file.length == 17
-			doc = window[collection].findOne({_id:file})
-			console.log doc
-			doc
-		else
-			null
+	fileUploadSelected: (name)->
+		template = Template.instance()
+		template.fileUpload.get()
+
+	isUploaded: (name,collection) ->
+		template = Template.instance()
+		template.fileUploaded.get()
