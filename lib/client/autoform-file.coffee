@@ -53,36 +53,37 @@ Template.afFileUpload.destroyed = ->
 	@fileUploaded.set undefined
 	return
 
-Template.afFileUpload.events
-	"change .file-upload": (event, template) ->
-		files = event.target.files
-		file = new FS.File files[0]
+uploadFile = (event, template) ->
+	FS.Utility.eachFile event, (fileObj) =>
+		file = new FS.File fileObj
 		file.metadata = file.metadata or {}
 		collection = getCollection(template.data)
 
 		if @atts.metadata
 			_.extend file.metadata, @atts.metadata
 
-		collection.insert file, (err, image) =>
-			if err
+		collection.insert file, (error, image) =>
+			if error
 				console.log err
 			else
-				name = $(event.target).attr('file-input')
-				$('input[name="' + name + '"]').val image._id
+				$('input[name="' + @atts.name + '"]').val image._id
 				template.file.set image
-				template.fileUpload.set files[0].name
+				template.fileUpload.set fileObj.name
 				template.fileUploaded.set false
 
 				collection = getCollection(@)
 				cursor = collection.find image._id
 
 				liveQuery = cursor.observe
-				  changed: (newImage) ->
-				    if newImage.isUploaded()
-				      template.fileUploaded.set true
-				      liveQuery.stop()
-				      return
-		return
+					changed: (newImage) ->
+						if newImage.isUploaded()
+							template.fileUploaded.set true
+							liveQuery.stop()
+							return
+
+Template.afFileUpload.events
+	"change .file-upload": uploadFile
+	'dropped [data-action="file-dropped"]': uploadFile
 
 	'click .file-path': (event, template)->
 		template.$('.file-upload').click()
@@ -104,6 +105,12 @@ Template.afFileUpload.helpers
 		@atts.label or 'Choose file'
 	buttonlabel: ->
 		@atts.buttonlabel or 'Choose file'
+	dropLabel: ->
+		@atts.dropLabel or 'Drop your file here'
+	dropEnabled: ->
+		@atts.dropEnabled
+	dropClasses: ->
+		@atts.dropClasses or 'card-panel grey lighten-4 grey-text text-darken-4'
 	removeLabel: ->
 		@atts['remove-label'] or 'Remove'
 	fileUploadAtts: ->

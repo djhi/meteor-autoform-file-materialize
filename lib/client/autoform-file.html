@@ -27,6 +27,17 @@
         <span>{{{buttonlabel}}}</span>
         <input class="hidden file-upload" id="file-{{name}}" file-input="{{name}}" type="file" />
       </div>
+			{{#if dropEnabled}}
+			<div class="row valign">
+				<div class="col s12">
+					<div data-action="file-dropped" class="valign-wrapper {{dropClasses}}">
+						<div class="center-align valign">
+							{{{dropLabel}}}
+						</div>
+					</div>
+				</div>
+			</div>
+			{{/if}}
     </div>
 		{{/if}}
 		<!-- <div class="">{{> afQuickField name=name}}</div> -->
