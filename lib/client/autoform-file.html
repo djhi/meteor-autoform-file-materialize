@@ -22,11 +22,13 @@
 		<a class="file-upload-clear btn-flat red-text" file-input="{{name}}"><i class="mdi-action-highlight-remove"></i> {{removeLabel}}</a>
 		{{else}}
     <div class="file-field input-field">
-      <input class="file-path validate" type="text" placeholder="{{this.atts.placeholder}}"/>
       <div class="btn">
         <span>{{{buttonlabel}}}</span>
         <input class="hidden file-upload" id="file-{{name}}" file-input="{{name}}" type="file" />
       </div>
+			<div class="file-path-wrapper">
+				<input class="file-path validate" type="text" placeholder="{{this.atts.placeholder}}"/>
+			</div>
 			{{#if dropEnabled}}
 			<div class="row valign">
 				<div class="col s12">
