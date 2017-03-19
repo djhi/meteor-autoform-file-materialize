@@ -4,6 +4,8 @@ Autoform File
 ### Description ###
 Upload and manage files with autoForm for materialize
 
+> Important I no longer use Meteor and won't be updating this project anymore. Please use https://github.com/mozfet/meteor-autoform-file-materialize which will be updated. Thanks to @mozfet for taking over this project.
+
 **Forked from [yogiben:autoform-file](https://github.com/yogiben/meteor-autoform-file)**
 
 ![Meteor autoform file](https://raw.githubusercontent.com/yogiben/meteor-autoform-file/master/readme/1.png)
